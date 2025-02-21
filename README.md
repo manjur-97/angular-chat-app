@@ -26,4 +26,9 @@ Follow these steps to run the application locally.
 Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/AngularChatApp.git
+[git clone https://github.com/your-username/AngularChatApp.git](https://github.com/manjur-97/angular-chat-app.git)
+
+### 2. Install Dependencies
+
+```bash
+npm install
