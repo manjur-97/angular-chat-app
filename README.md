@@ -1,4 +1,4 @@
-AngularChatApp
+# AngularChatApp
 
 This is a real-time chat application built with Angular. It allows users to send and receive messages instantly, creating a seamless messaging experience. The application is powered by Firebase for user authentication and message storage.
 
@@ -8,6 +8,7 @@ This is a real-time chat application built with Angular. It allows users to send
 - User authentication with Firebase
 - Responsive UI built with Angular
 - Firebase backend for storing messages and user data
+- Friend request sent and accept/reject
 
 ## Prerequisites
 
@@ -27,20 +28,22 @@ Clone this repository to your local machine:
 
 ```bash
 git clone https://github.com/manjur-97/angular-chat-app.git
-2. Install Dependencies
+```
+
+### 2. Install Dependencies
+
 Navigate to the project directory and install the necessary dependencies:
 
-bash
-Copy
-Edit
-cd AngularChatApp
-npm install
-3. Configure Firebase
-To connect the app with Firebase, create a Firebase project and get your configuration details. Then, update the Firebase configuration in the src/environments/environment.ts file:
+```bash
 
-typescript
-Copy
-Edit
+npm install
+```
+
+### 3. Configure Firebase
+
+To connect the app with Firebase, create a Firebase project and get your configuration details. Then, update the Firebase configuration in the `src/environments/environment.ts` file:
+
+```typescript
 export const environment = {
   production: false,
   firebaseConfig: {
@@ -53,56 +56,42 @@ export const environment = {
     measurementId: "your-measurement-id"
   }
 };
-4. Start the Development Server
+```
+
+### 4. Start the Development Server
+
 Run the development server with the following command:
 
-bash
-Copy
-Edit
+```bash
 ng serve
-Once the server is running, navigate to http://localhost:4200/ in your browser to see the app in action. The app will automatically reload if you modify any of the source files.
+```
 
-Project Structure
+Once the server is running, navigate to [http://localhost:4200/](http://localhost:4200/) in your browser to see the app in action. The app will automatically reload if you modify any of the source files.
+
+## Project Structure
+
 Here’s an overview of the important files and folders in this project:
 
-src/app: Contains the main components, services, and models for the app.
-src/environments: Contains the environment configuration files, including Firebase credentials.
-src/assets: Stores static assets such as images and styles.
-Building the Project
+- `src/app`: Contains the main components, services, and models for the app.
+- `src/environments`: Contains the environment configuration files, including Firebase credentials.
+- `public/assets`: Stores static assets such as images and styles.
+
+## Building the Project
+
 To build the project for production, run:
 
-bash
-Copy
-Edit
+```bash
 ng build --prod
-This will compile and store the build artifacts in the dist/ directory, optimized for performance.
+```
 
-Running Tests
-To execute unit tests, run:
+This will compile and store the build artifacts in the `dist/` directory, optimized for performance.
 
-bash
-Copy
-Edit
-ng test
-For end-to-end tests, run:
 
-bash
-Copy
-Edit
-ng e2e
-Contributing
+
+## Contributing
+
 If you would like to contribute to this project, please fork the repository and submit a pull request. Any contributions are welcome!
 
-License
+## License
+
 This project is open-source and available under the MIT License.
-
-markdown
-Copy
-Edit
-
-### Corrections made:
-1. Fixed the `git clone` URL and placed it in the correct Markdown format.
-2. Corrected the closing of code blocks for the `Install Dependencies` and `Configure Firebase` sections.
-3. Ensured consistent formatting for code blocks and command sections.
-
-This should work perfectly now! Let me know if you need further assistance.
