@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, addDoc, doc, setDoc, onSnapshot, getDoc, deleteDoc, orderBy} from '@angular/fire/firestore';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { Firestore, collection, query, where, getDocs, addDoc, doc, setDoc, onSnapshot, getDoc, deleteDoc, orderBy, writeBatch } from '@angular/fire/firestore';
 
 import { Auth, signOut, User, onAuthStateChanged } from '@angular/fire/auth';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ import Swal from 'sweetalert2';
 })
 export class ChatComponent implements OnInit {
   activeTab = 'friends';
-  friends: { uid: string; name: string; avatar?: string }[] = [];
+  friends: { uid: string; name: string; avatar?: string ;  unseenMessagesCount: number;}[] = [];
   dummyFriends: { uid: string; name: string; avatar?: string }[] = [];
   allUsers: { uid: string; name: string; avatar?: string }[] = [];
   allFriendRequestedUsers: { uid: string; name: string; avatar?: string }[] = [];
@@ -30,7 +30,13 @@ export class ChatComponent implements OnInit {
   loginUser: any = null;
   isButtonDisabled: { [key: string]: boolean } = {}; // Track disabled state
   buttonText: { [key: string]: string } = {};
-  notes = "You don't have any real-time friends. Send a friend request to connect"
+  notes = "You don't have any real-time friends. Send a friend request to connect";
+  isMobile = window.innerWidth < 768;
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.isMobile = window.innerWidth < 768;
+  }
 
   constructor(private firestore: Firestore, private auth: Auth, private router: Router) { }
 
@@ -62,21 +68,42 @@ export class ChatComponent implements OnInit {
     }
   }
 
+
   async loadFriends() {
     if (!this.currentUserId) return;
 
     const friendsRef = collection(this.firestore, 'users');
     const q = query(friendsRef, where('friends', 'array-contains', this.currentUserId));
     const friendSnap = await getDocs(q);
-    this.friends = friendSnap.docs.map(doc => doc.data() as { uid: string; name: string; avatar?: string });
-    if (this.friends.length === 0) {
+  
+    this.friends = friendSnap.docs.map(doc => ({
+        ...(doc.data() as { uid: string; name: string; avatar?: string }),
+        unseenMessagesCount: 0 
+    }));
+
+    
+    this.friends.forEach(async (friend) => {
+        const messagesRef = collection(this.firestore, 'messages');
+        const unseenQuery = query(
+            messagesRef,
+            where('chatId', '==', this.getChatId(friend.uid)), 
+            where('status', '==', 'unseen'), 
+            where('sender', '==', friend.uid) 
+        );
+
+        const unseenSnap = await getDocs(unseenQuery);
+        friend.unseenMessagesCount = unseenSnap.size; 
+    });
+
+       if (this.friends.length === 0) {
       this.dummyFriends = [
         { uid: 'dummy1', name: 'Dummy Friend 1', avatar: 'avatar1.png' },
         { uid: 'dummy2', name: 'Dummy Friend 2', avatar: 'avatar2.png' },
         { uid: 'dummy3', name: 'Dummy Friend 3', avatar: 'avatar3.png' }
       ];
     }
-  }
+}
+
 
   async loadUsers() {
     if (!this.currentUserId) return;
@@ -87,7 +114,7 @@ export class ChatComponent implements OnInit {
     const friendRequestSnap = await getDocs(friendRequestQuery);
 
     // Extract receiver IDs from friend requests
-    const requestedUserIds = friendRequestSnap.docs.map(doc => doc.data()['receiverId']); // Access using bracket notation
+    const requestedUserIds = friendRequestSnap.docs.map(doc => doc.data()['receiverId']); 
 
     // Fetch all users
     const usersRef = collection(this.firestore, 'users');
@@ -97,21 +124,16 @@ export class ChatComponent implements OnInit {
     this.allUsers = userSnap.docs
       .map(doc => doc.data() as { uid: string; name: string; avatar?: string })
       .filter(user => user.uid !== this.currentUserId && !requestedUserIds.includes(user.uid));
+
+      
   }
 
-  // async loadFriendRequests() {
-  //   if (!this.currentUserId) return;
-
-  //   const requestsRef = collection(this.firestore, 'friendRequests');
-  //   const q = query(requestsRef, where('receiverId', '==', this.currentUserId));
-  //   const requestSnap = await getDocs(q);
-  //   this.friendRequests = requestSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
-  // }
+ 
 
   async loadFriendRequests() {
     if (!this.currentUserId) return;
 
-    // Step 1: Get the friend requests where receiverId is the current user
+  // Get the friend requests where receiverId is the current user
     const requestsRef = collection(this.firestore, 'friendRequests');
     const q = query(
       requestsRef,
@@ -120,18 +142,18 @@ export class ChatComponent implements OnInit {
     );
     const requestSnap = await getDocs(q);
 
-    // Step 2: For each request, get the sender user information from the 'users' collection
+  
     this.friendRequests = [];
 
     for (const requestDoc of requestSnap.docs) {
       const requestData = requestDoc.data() as any;
 
       // Fetch sender's user data from 'users' collection using senderId
-      const senderUserRef = doc(this.firestore, 'users', requestData.senderId);  // Correct reference to the 'users' document
-      const senderSnap = await getDoc(senderUserRef);  // Use getDoc to fetch the document
-      const senderData = senderSnap.data();  // Get the data of the sender
+      const senderUserRef = doc(this.firestore, 'users', requestData.senderId);  
+      const senderSnap = await getDoc(senderUserRef);  
+      const senderData = senderSnap.data();  
 
-      // Combine the request data with the sender's information
+     
       this.friendRequests.push({
         id: requestDoc.id,
         senderId: requestData.senderId,
@@ -176,49 +198,49 @@ export class ChatComponent implements OnInit {
 
   async acceptRequest(request: { id: string; senderId: string }) {
     if (!this.currentUserId) return;
-  
+
     const userId = 'accept' + request.id;
     this.isButtonDisabled[userId] = true;  // Disable the button during the process
     this.buttonText[userId] = '...';  // Show loading indicator
-  
+
     try {
-      // Get the sender and receiver user references
+     
       const senderRef = doc(this.firestore, `users/${request.senderId}`);
       const receiverRef = doc(this.firestore, `users/${this.currentUserId}`);
-  
-      // Fetch the current data of both sender and receiver to ensure 'friends' field exists
+
+      
       const senderDoc = await getDoc(senderRef);
       const receiverDoc = await getDoc(receiverRef);
-  
-      // Get the existing friends array or initialize it as an empty array if undefined
+
+   
       const senderFriends = senderDoc.exists() ? senderDoc.data()?.['friends'] || [] : [];
       const receiverFriends = receiverDoc.exists() ? receiverDoc.data()?.['friends'] || [] : [];
-  
+
       // Update both sender's and receiver's friend lists
       await setDoc(senderRef, { friends: [...senderFriends, this.currentUserId] }, { merge: true });
       await setDoc(receiverRef, { friends: [...receiverFriends, request.senderId] }, { merge: true });
-  
-      // Delete the friend request from the friendRequests collection
+
+      
       const requestRef = doc(this.firestore, `friendRequests/${request.id}`);
-      await deleteDoc(requestRef);  // Delete the friend request document
-  
-      // Update button text and re-enable the button
-      this.buttonText[userId] = '✔';  // Set button text to success icon
-      this.isButtonDisabled[userId] = false;  // Re-enable the button
-  
+      await deleteDoc(requestRef);  
+
+      
+      this.buttonText[userId] = '✔';  
+      this.isButtonDisabled[userId] = false;  
+
       // Success message
       Swal.fire({
         title: 'Accepted!',
         text: 'Friend request accepted successfully.',
         icon: 'success'
       });
-  
-      // Reload the friend requests to update the UI
+
+      
       this.loadFriendRequests();
-      this. loadFriends()
-  
+      this.loadFriends()
+
     } catch (error) {
-      // In case of any errors, log and show an error message
+      
       console.error('Error accepting friend request:', error);
       this.buttonText[userId] = '❌';  // Show an error icon on the button
       this.isButtonDisabled[userId] = false;  // Re-enable the button
@@ -229,8 +251,8 @@ export class ChatComponent implements OnInit {
       });
     }
   }
-  
-  
+
+
 
   async declineRequest(request: { id: string }) {
     alert(`Declined friend request`);
@@ -242,13 +264,23 @@ export class ChatComponent implements OnInit {
     const q = query(
       messagesRef,
       where('chatId', '==', this.getChatId(friend.uid)),
-      orderBy('timestamp')  // Order by the 'timestamp' field in ascending order (default)
+      orderBy('timestamp') 
     );
 
     onSnapshot(q, (snapshot) => {
-      this.messages = snapshot.docs.map(doc => doc.data() as { sender: string; text: string });
+      const batch = writeBatch(this.firestore);
+      this.messages = snapshot.docs.map(doc => {
+        const message = doc.data() as { sender: string; text: string; status?: string };
+        if (message.sender !== this.currentUserId && message.status == 'unseen') {
+          batch.update(doc.ref, { status: 'seen' });
+        }
+        this.loadFriends()
+        return message;
+      });
+      batch.commit().catch(error => console.error("Error updating seen messages:", error));
     });
   }
+
 
   async sendMessage() {
     if (!this.messageText.trim() || !this.selectedFriend || !this.currentUserId) return;
@@ -258,7 +290,8 @@ export class ChatComponent implements OnInit {
       chatId: this.getChatId(this.selectedFriend.uid),
       text: this.messageText,
       sender: this.currentUserId,
-      timestamp: new Date()
+      timestamp: new Date(),
+      status: 'unseen'
     });
 
     this.messageText = '';
@@ -266,6 +299,9 @@ export class ChatComponent implements OnInit {
 
   getChatId(friendId: string) {
     return this.currentUserId < friendId ? `${this.currentUserId}_${friendId}` : `${friendId}_${this.currentUserId}`;
+  }
+  closeChatBox() {
+    this.selectedFriend = null;
   }
 
   async logout() {

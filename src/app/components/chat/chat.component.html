@@ -1,103 +1,164 @@
-<div class="chat-container">
-  <div class="sidebar">
-    <div class="sidebar-header ">
-      <div class="profile_box">
-        <div class="profile_image">
-          <img src="../../../assets/profile.jpg" alt="">
-        </div>
-        {{ loginUser?.name }}
-      </div>
-      <div><button (click)="logout()">Logout</button></div>
-    </div>
+<div class="background">
+  <div>
 
-    <ul class="nav nav-tabs">
-      <li class="nav-item" (click)="activeTab = 'friends'">
-        <a class="nav-link" [class.active]="activeTab === 'friends'">Friends</a>
-      </li>
-      <li class="nav-item" (click)="activeTab = 'allUsers'">
-        <a class="nav-link" [class.active]="activeTab === 'allUsers'">Add Friends</a>
-      </li>
-      <li class="nav-item" (click)="activeTab = 'requests'">
-        <a class="nav-link" [class.active]="activeTab === 'requests'">Requests</a>
-      </li>
-    </ul>
+  </div>
 
-    <ul *ngIf="activeTab === 'friends'" class="user-list">
-      <!-- Show friends if available -->
-      <li *ngFor="let friend of friends" (click)="selectFriend(friend)">
-        <div class="title_image">
-          <img [src]="friend.avatar" class="avatar" />
-        </div>
-        {{ friend.name }}
-      </li>
-
-      <!-- Show message if no friends are available -->
-      <li *ngIf="friends.length === 0" class="no-friends-message"
-        style="padding: 10px; color: rgb(233, 233, 233); background-color: #8441ff;">
-        {{notes}}
-      </li>
-
-      <!-- Show dummy friends if no friends are available -->
-      <ng-container *ngIf="friends.length === 0">
-        <li *ngFor="let friend of dummyFriends" (click)="selectFriend(friend)">
-          <div class="title_image">
-            <img [src]="friend.avatar" class="avatar" />
+</div>
+<div class="chat-area">
+  <div class="chat-container">
+    <div class="sidebar">
+      <div class="sidebar-header ">
+        <div class="profile_box">
+          <div class="profile_image">
+            <img src="./assets/user.png" alt="" width="30px">
           </div>
-          {{ friend.name }}
+          {{ loginUser?.name }}
+        </div>
+        <div><button (click)="logout()"><img src="./assets/logout.png" alt="" width='25px'></button></div>
+      </div>
+
+      <ul class="nav nav-tabs">
+        <li class="nav-item" (click)="activeTab = 'friends'">
+          <a class="nav-link" [class.active]="activeTab === 'friends'">Friends</a>
         </li>
-      </ng-container>
-    </ul>
-    <ul *ngIf="activeTab === 'allUsers'" class="user-list">
-      <li *ngFor="let user of allUsers" class="add_friend">
-        <div class="title_image">
-          <img [src]="user.avatar" class="avatar" />
-        </div> {{ user.name }}
-        <button title="Send friend request" (click)="sendFriendRequest(user)" [disabled]="isButtonDisabled[user.uid]">
-          {{ buttonText[user.uid] || '+' }}
-        </button>
-      </li>
-    </ul>
+        <li class="nav-item" (click)="activeTab = 'allUsers'">
+          <a class="nav-link" [class.active]="activeTab === 'allUsers'">Add Friends</a>
+        </li>
+        <li class="nav-item" (click)="activeTab = 'requests'">
+          <a class="nav-link" [class.active]="activeTab === 'requests'">Requests</a>
+        </li>
+      </ul>
 
-    <ul *ngIf="activeTab === 'requests'" class="user-list">
-      <li *ngFor="let request of friendRequests" class="add_friend">
-        <div class="title_image">
+      <ul *ngIf="activeTab === 'friends'" class="user-list">
+        <!-- Show friends if available -->
+        <li class="d-flex justify-content-between mb-1 px-3" *ngFor="let friend of friends" (click)="selectFriend(friend)">
+          <div class=" title_image me-2">
+            <img src="./assets/user.png" alt="" width="20px" height="20px"> {{ friend.name }}
+          </div>
+         
+          <span *ngIf="friend.unseenMessagesCount>0" class="badge text-bg-warning p-2">{{ friend.unseenMessagesCount }}</span>
+        </li>
 
-        </div>
-        {{ request.data.name }}
-        <div>
-          
-          <button style="margin-right: 5px;" (click)="acceptRequest(request)" [disabled]="isButtonDisabled['accept'+request.id]">
-            {{ buttonText['accept'+request.id] || '✔' }}
+        <!-- Show message if no friends are available -->
+        <li *ngIf="friends.length === 0" class="no-friends-message"
+          style="padding: 10px; color: rgb(233, 233, 233); background-color: #8441ff;">
+          {{notes}}
+        </li>
+
+        <!-- Show dummy friends if no friends are available -->
+        <ng-container *ngIf="friends.length === 0">
+          <li *ngFor="let friend of dummyFriends" (click)="selectFriend(friend)">
+            <div class="title_image">
+              <img [src]="friend.avatar" class="avatar" />
+            </div>
+            {{ friend.name }}
+          </li>
+        </ng-container>
+      </ul>
+      <ul *ngIf="activeTab === 'allUsers'" class="user-list">
+        <li class=" add_friend mb-1 " *ngFor="let user of allUsers" >
+          <div class=" title_image me-2">
+            <img src="./assets/user.png" alt="" width="20px" height="20px">
+          </div> {{ user.name }}
+          <button title="Send friend request" (click)="sendFriendRequest(user)" [disabled]="isButtonDisabled[user.uid]">
+            {{ buttonText[user.uid] || '+' }}
           </button>
-          
-          <button (click)="declineRequest(request)" [disabled]="isButtonDisabled['reject'+request.id]">
-            {{ buttonText['reject'+request.id] || '❌' }}
-          </button>
-        </div>
+        </li>
+      </ul>
 
-      </li>
-    </ul>
-  </div>
+      <ul *ngIf="activeTab === 'requests'" class="user-list">
+        <li *ngFor="let request of friendRequests" class="add_friend mb-1">
+          <div class=" title_image me-2">
+            <img src="./assets/user.png" alt="" width="20px" height="20px">
+          </div>
+          {{ request.data.name }}
+          <div>
 
-  <div class="chat-box" *ngIf="selectedFriend">
-    <div class="chat-header">
-      <img [src]="selectedFriend.avatar" class="avatar" />
-      <h3>{{ selectedFriend.name }}</h3>
+            <button style="margin-right: 5px;" (click)="acceptRequest(request)"
+              [disabled]="isButtonDisabled['accept'+request.id]">
+              {{ buttonText['accept'+request.id] || '✔' }}
+            </button>
+
+            <button (click)="declineRequest(request)" [disabled]="isButtonDisabled['reject'+request.id]">
+              {{ buttonText['reject'+request.id] || '❌' }}
+            </button>
+          </div>
+
+        </li>
+      </ul>
     </div>
 
-    <div class="chat-messages">
-      <div *ngFor="let message of messages" [class.me]="message.sender === currentUserId">
-        <p>{{ message.text }}</p>
+    <div class="chat-box" *ngIf="selectedFriend && !isMobile">
+      <div class="chat-header">
+        <div class=" d-flex align-items-center">
+          <img src="./assets/user.png" alt="" width='30px'>
+          <p class="m-1">{{ selectedFriend.name }}</p>
+        </div>
+        <div>
+          <button class="btn btn-outline-danger p-1" (click)="closeChatBox()">
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 48 48">
+              <path fill="#F44336" d="M21.5 4.5H26.501V43.5H21.5z" transform="rotate(45.001 24 24)"></path>
+              <path fill="#F44336" d="M21.5 4.5H26.5V43.501H21.5z" transform="rotate(135.008 24 24)"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-messages">
+        <p *ngFor="let message of messages" [class.me]="message.sender === currentUserId">
+          {{ message.text }}
+        </p>
+      </div>
+
+      <div class="chat-input">
+        <button class="btn btn-outline-dark me-2 px-2 py-1">
+          <img src="./assets/image.png" alt="Send Icon" width="20px" />
+        </button>
+        <input type="text" class="form-control" [(ngModel)]="messageText" placeholder="Type a message..." />
+        <button class="btn btn-outline-dark ms-2 px-2 py-1" (click)="sendMessage()">
+          <img src="./assets/send.png" alt="Send Icon" width="20px" />
+        </button>
       </div>
     </div>
+    <div class="chat-box-mobile" *ngIf="selectedFriend && isMobile">
+      <div class="chat-header">
+        <div class=" d-flex align-items-center">
+          <img src="./assets/user.png" alt="" width='30px'>
+          <p class="m-1">{{ selectedFriend.name }}</p>
+        </div>
+        <div>
+          <button class="btn btn-outline-danger p-1" (click)="closeChatBox()">
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 48 48">
+              <path fill="#F44336" d="M21.5 4.5H26.501V43.5H21.5z" transform="rotate(45.001 24 24)"></path>
+              <path fill="#F44336" d="M21.5 4.5H26.5V43.501H21.5z" transform="rotate(135.008 24 24)"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="chat-messages">
+        <p *ngFor="let message of messages" [class.me]="message.sender === currentUserId">
+          {{ message.text }}
+        </p>
+        
+      </div>
 
-    <div class="chat-input">
-      <input type="text" [(ngModel)]="messageText" placeholder="Type a message..." />
-      <button (click)="sendMessage()">Send</button>
+      <div class="chat-input">
+        <button class="btn btn-outline-dark me-2 px-2 py-1">
+          <img src="./assets/image.png" alt="Send Icon" width="20px" />
+        </button>
+        <input type="text" class="form-control" [(ngModel)]="messageText" placeholder="Type a message..." />
+        <button class="btn btn-outline-dark ms-2 px-2 py-1" (click)="sendMessage()">
+          <img src="./assets/send.png" alt="Send Icon" width="20px" />
+        </button>
+      </div>
     </div>
-  </div>
-
-  <div class="no-chat" *ngIf="!selectedFriend">
-    <h3>Select a friend to chat</h3>
+    
+    <div class="no-chat" *ngIf="!selectedFriend && !isMobile">
+      <div> 
+        <img src="./assets/chat-bg.png" alt="" srcset="">
+      </div>
+      <h3>Select a friend to chat</h3>
+    </div>
   </div>
 </div>

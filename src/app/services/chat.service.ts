@@ -9,13 +9,14 @@ export class ChatService {
   constructor(private firestore: Firestore) {}
 
   // Send a message
-  sendMessage(message: string, userId: string, userName: string) {
+  sendMessage(message: string, userId: string, userName: string, status:string) {
     const messagesRef = collection(this.firestore, 'messages');
     return addDoc(messagesRef, {
       text: message,
       userId: userId,
       userName: userName,
-      timestamp: new Date()
+      timestamp: new Date(),
+      status:'unseen'
     });
   }
 

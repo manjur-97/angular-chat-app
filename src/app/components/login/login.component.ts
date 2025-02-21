@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common'; // Import CommonModule
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
-    standalone: true, // Mark this as a standalone component
-    imports: [FormsModule, CommonModule], // Add FormsModule and CommonModule here
+    standalone: true,
+    imports: [FormsModule, CommonModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -20,7 +20,7 @@ export class LoginComponent {
   constructor(private auth: Auth,  private router: Router) {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
-        this.router.navigate(['/chat']);  // Auto redirect to chat page
+        this.router.navigate(['/chat']);  
       }
     });
   }
@@ -42,23 +42,22 @@ export class LoginComponent {
         const result = await signInWithPopup(this.auth, provider);
         const user = result.user;
 
-        // Firestore reference
+      
         const db = getFirestore();
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
 
-        // If user does not exist, save it to Firestore
         if (!userSnap.exists()) {
             await setDoc(userRef, {
                 uid: user.uid,
                 name: user.displayName || "Unknown",
                 email: user.email,
-                password: "123456", // Default password (not recommended, consider removing)
-                createdAt: serverTimestamp() // Firestore timestamp
+                password: "123456", 
+                createdAt: serverTimestamp() 
             });
         }
 
-        // Redirect after login
+      
         this.router.navigate(['/chat']);
     } catch (error: any) {
         this.errorMessage = error.message;

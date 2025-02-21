@@ -73,40 +73,14 @@ button {
   transition: background 0.3s ease;
 }
 
-button[type="submit"] {
-  background: #007bff;
-  color: #fff;
-}
 
-button[type="submit"]:hover {
-  background: #0056b3;
-}
 
 button:disabled {
-  background: #ccc;
+  background: #6e6e6d;
   cursor: not-allowed;
 }
 
-/* Google login button */
-.btn-danger {
-  background: #db4437;
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
 
-.btn-danger:hover {
-  background: #c1351d;
-}
-
-/* Google icon spacing */
-.btn-danger img {
-  width: 20px;
-  height: 20px;
-}
 
 /* Error message */
 .error-message {

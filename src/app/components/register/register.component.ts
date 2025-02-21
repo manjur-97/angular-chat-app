@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms'; // Import FormsModule
-import { CommonModule } from '@angular/common'; // Import CommonModule
+import { FormsModule, NgForm } from '@angular/forms'; 
+import { CommonModule } from '@angular/common'; 
 import { Router } from '@angular/router';
 import { Auth, createUserWithEmailAndPassword , onAuthStateChanged,signInWithPopup, GoogleAuthProvider,} from '@angular/fire/auth';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-register',
-  standalone: true, // Mark this as a standalone component
-  imports: [FormsModule, CommonModule], // Add FormsModule and CommonModule here
+  standalone: true, 
+  imports: [FormsModule, CommonModule], 
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
@@ -30,7 +30,7 @@ export class RegisterComponent {
   ) {
     onAuthStateChanged(this.auth, (user) => {
       if (user) {
-        this.router.navigate(['/chat']);  // Auto redirect to chat page
+        this.router.navigate(['/chat']);  
       }
     });
   }
