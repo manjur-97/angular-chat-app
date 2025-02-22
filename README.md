@@ -1,59 +1,97 @@
 # AngularChatApp
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.5.
+This is a real-time chat application built with Angular. It allows users to send and receive messages instantly, creating a seamless messaging experience. The application is powered by Firebase for user authentication and message storage.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- Real-time chat functionality
+- User authentication with Firebase
+- Responsive UI built with Angular
+- Firebase backend for storing messages and user data
+- Friend request sent and accept/reject
+
+## Prerequisites
+
+To get started, make sure you have the following installed on your machine:
+
+- **Node.js** (version >= 14.x)
+- **Angular CLI** (version 19.1.5 or later)
+- **Firebase Account** for setting up Firebase services
+
+## Getting Started
+
+Follow these steps to run the application locally.
+
+### 1. Clone the Repository
+
+Clone this repository to your local machine:
+
+```bash
+git clone https://github.com/manjur-97/angular-chat-app.git
+```
+
+### 2. Install Dependencies
+
+Navigate to the project directory and install the necessary dependencies:
+
+```bash
+
+npm install
+```
+
+### 3. Configure Firebase
+
+To connect the app with Firebase, create a Firebase project and get your configuration details. Then, update the Firebase configuration in the `src/environments/environment.ts` file:
+
+```typescript
+export const environment = {
+  production: false,
+  firebaseConfig: {
+    apiKey: "your-api-key",
+    authDomain: "your-auth-domain",
+    projectId: "your-project-id",
+    storageBucket: "your-storage-bucket",
+    messagingSenderId: "your-messaging-sender-id",
+    appId: "your-app-id",
+    measurementId: "your-measurement-id"
+  }
+};
+```
+
+### 4. Start the Development Server
+
+Run the development server with the following command:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Once the server is running, navigate to [http://localhost:4200/](http://localhost:4200/) in your browser to see the app in action. The app will automatically reload if you modify any of the source files.
 
-## Code scaffolding
+## Project Structure
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Here’s an overview of the important files and folders in this project:
 
-```bash
-ng generate component component-name
-```
+- `src/app`: Contains the main components, services, and models for the app.
+- `src/environments`: Contains the environment configuration files, including Firebase credentials.
+- `public/assets`: Stores static assets such as images and styles.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Building the Project
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+To build the project for production, run:
 
 ```bash
-ng build
+ng build --prod
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+This will compile and store the build artifacts in the `dist/` directory, optimized for performance.
 
-## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
-```bash
-ng test
-```
+## Contributing
 
-## Running end-to-end tests
+If you would like to contribute to this project, please fork the repository and submit a pull request. Any contributions are welcome!
 
-For end-to-end (e2e) testing, run:
+## License
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is open-source and available under the MIT License.
